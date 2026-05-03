@@ -1,7 +1,10 @@
 import streamlit as st
 
 # 1. Page Configuration
-st.set_page_config(page_title="Advanced Auto", page_icon="🔧", layout="centered")
+st.set_page_config(
+    page_title="Advanced Auto", 
+    page_icon="https://raw.githubusercontent.com/Reapertactics777-prog/johans-judgement/main/1777837110203.png",
+    layout="centered")
 
 # 2. Styling
 st.markdown("""
