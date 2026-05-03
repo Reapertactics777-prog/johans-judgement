@@ -1,7 +1,7 @@
 import streamlit as st
 
 # 1. Page Configuration
-st.set_page_config(page_title="Johan's Judgement", page_icon="🔧", layout="centered")
+st.set_page_config(page_title="Advanced Auto", page_icon="🔧", layout="centered")
 
 # 2. Styling
 st.markdown("""
@@ -12,7 +12,7 @@ st.markdown("""
     </style>
     """, unsafe_allow_html=True)
 
-st.title("🔧 Johan's Judgement")
+st.title("🔧 Advanced Auto")
 st.write("### Advanced Mechanical Diagnostic Engine")
 st.write("---")
 
