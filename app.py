@@ -15,7 +15,7 @@ st.markdown("""
         color: white;
     }
     </style>
-    """, unsafe_allow_value=True)
+    """, unsafe_allow_html=True)
 
 st.title("🔧 Johan's Judgement")
 st.write("### Professional Mechanic Diagnosis")
