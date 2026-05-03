@@ -1,82 +1,98 @@
 import streamlit as st
 
-# Page Configuration
-st.set_page_config(page_title="Johan's Judgement", page_icon="🔧")
+# 1. Page Configuration
+st.set_page_config(page_title="Johan's Judgement", page_icon="🔧", layout="wide")
 
-# App Styling
+# 2. App Styling
 st.markdown("""
     <style>
-    .main {
-        background-color: #f5f5f5;
+    .main { background-color: #f0f2f6; }
+    .stButton>button { 
+        width: 100%; 
+        background-color: #d32f2f; 
+        color: white; 
+        height: 3em; 
+        font-size: 20px;
     }
-    .stButton>button {
-        width: 100%;
-        background-color: #d32f2f;
-        color: white;
+    .report-box {
+        padding: 20px;
+        border-radius: 10px;
+        background-color: white;
+        border-left: 10px solid #d32f2f;
     }
     </style>
     """, unsafe_allow_html=True)
 
-st.title("🔧 Johan's Judgement")
-st.write("### Professional Mechanic Diagnosis")
+st.title("🔧 Johan's Judgement: Advanced Diagnostic")
 st.write("---")
 
-# Vehicle Inputs
-col1, col2 = st.columns(2)
-with col1:
-    brand = st.text_input("Car Brand", placeholder="e.g. Toyota")
-    model = st.text_input("Model", placeholder="e.g. Hilux")
-    year = st.number_input("Year", min_value=1980, max_value=2026, value=2018)
-
-with col2:
-    fuel = st.radio("Engine Type", ["Petrol", "Diesel"])
-    last_service = st.number_input("Months since last service", min_value=0, max_value=60, value=6)
-
-symptom = st.selectbox("What is the main symptom?", [
-    "Select a symptom",
-    "Knocking noise from engine",
-    "Overheating",
-    "Black smoke from exhaust",
-    "White smoke from exhaust",
-    "Loss of power",
-    "Squealing noise when braking",
-    "Hard to start"
-])
-
-# Diagnosis Data
-knowledge_base = {
-    "Knocking noise from engine": [{"cause": "Low oil levels or worn bearings", "fuel": "both", "service": True}],
-    "Overheating": [{"cause": "Coolant leak or faulty thermostat", "fuel": "both", "service": True}],
-    "Black smoke from exhaust": [
-        {"cause": "Clogged air filter", "fuel": "both", "service": True},
-        {"cause": "Faulty diesel injectors", "fuel": "Diesel", "service": False}
-    ],
-    "Loss of power": [{"cause": "Fuel filter blockage", "fuel": "both", "service": True}],
-    "Hard to start": [
-        {"cause": "Worn spark plugs", "fuel": "Petrol", "service": True},
-        {"cause": "Glow plugs failing", "fuel": "Diesel", "service": True}
-    ]
+# 3. Enhanced Troubleshooting Database
+kb = {
+    "Loss of power": {
+        "Phase 1: Air & Exhaust": [
+            {"q": "Is there thick black smoke during acceleration?", "target": "EGR Valve stuck or Carbon buildup", "detail": "Excessive soot indicates air starvation or a stuck EGR valve."},
+            {"q": "Do you hear a high-pitched whistling or 'whoosh' sound?", "target": "Boost leak or Turbocharger failure", "detail": "Common on diesels; check intercooler pipes for cracks."},
+        ],
+        "Phase 2: Fuel & Delivery": [
+            {"q": "Does the engine 'stutter' or hesitate only when going uphill?", "target": "Weak Fuel Pump or clogged strainer", "detail": "The pump is struggling to maintain pressure under load."},
+            {"q": "Is the car harder to start when the engine is already hot?", "target": "Leaking Fuel Injectors", "detail": "Injectors may be 'dripping' fuel, causing a flooded start."}
+        ],
+        "Phase 3: Sensors & Electrical": [
+            {"q": "Is the 'Check Engine' light flashing specifically under load?", "target": "Ignition Coil Misfire", "detail": "Common in petrol engines; spark is failing under compression."},
+            {"q": "Does the car feel normal until you reach a certain speed/RPM?", "target": "MAF Sensor or Limp Mode", "detail": "The ECU might be restricting power due to bad sensor readings."}
+        ]
+    },
+    "Brake / Suspension Issues": {
+        "Phase 1: Vibration": [
+            {"q": "Does the steering wheel shake only when braking?", "target": "Warped Brake Discs", "detail": "Heat has distorted the rotors, causing an uneven surface."},
+            {"q": "Does the car pull to one side when you aren't braking?", "target": "Wheel Alignment or Control Arm Bushings", "detail": "Suspension geometry is out of spec."}
+        ]
+    }
 }
 
-if st.button("GET JUDGEMENT"):
-    if symptom == "Select a symptom":
-        st.error("Please select a symptom first.")
-    else:
-        st.write(f"#### Results for your {year} {brand}:")
-        found = False
-        for issue in knowledge_base.get(symptom, []):
-            if issue['fuel'] == fuel or issue['fuel'] == "both":
-                found = True
-                if last_service > 12 and issue['service']:
-                    st.warning(f"⚠️ Likely {issue['cause']} (Due to lack of service)")
-                else:
-                    st.info(f"✅ Potential Issue: {issue['cause']}")
-        
-        if not found:
-            st.write("Specialized diagnosis required.")
+# 4. Sidebar Profile
+st.sidebar.header("Vehicle Profile")
+brand = st.sidebar.text_input("Brand", "Toyota")
+fuel = st.sidebar.radio("Engine Type", ["Petrol", "Diesel"])
+mileage = st.sidebar.number_input("Current Mileage (km)", value=150000, step=10000)
+last_service = st.sidebar.slider("Months since last service", 0, 48, 6)
 
-# Footer
+# 5. Diagnostic Workflow
+symptom = st.selectbox("Select the primary symptom:", ["Select one"] + list(kb.keys()))
+
+if symptom != "Select one":
+    st.write(f"### Investigating: {symptom}")
+    st.write("Answer the following to eliminate unlikely causes:")
+    
+    user_hits = []
+    
+    # Loop through the phases
+    for phase, questions in kb[symptom].items():
+        with st.expander(phase, expanded=True):
+            for item in questions:
+                choice = st.radio(item['q'], ["No / Not Sure", "Yes"], key=item['q'])
+                if choice == "Yes":
+                    user_hits.append(item)
+
+    st.write("---")
+    if st.button("GENERATE JUDGEMENT"):
+        if not user_hits:
+            st.error("No specific indicators found. This suggests a general mechanical wear issue (like a clogged filter) or a deep internal engine problem.")
+        else:
+            st.markdown('<div class="report-box">', unsafe_allow_html=True)
+            st.header("🏁 Johan's Final Report")
+            for hit in user_hits:
+                st.subheader(f"📍 Potential: {hit['target']}")
+                st.write(f"**Why?** {hit['detail']}")
+            
+            # Add a specific advice based on the user's mileage
+            if mileage > 200000:
+                st.warning("⚠️ High Mileage Note: At this distance, consider checking timing chains and compression.")
+            
+            st.markdown('</div>', unsafe_allow_html=True)
+
+# 6. Footer
 st.write("---")
 st.markdown("### 📞 NEED A PROFESSIONAL HAND?")
-st.markdown("## **Contact: 061 888 6110**")
+st.markdown(f"## **Contact: 061 888 6110**")
 st.write("Call me if you are in the **East Rand**!")
