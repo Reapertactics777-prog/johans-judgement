@@ -121,6 +121,40 @@ if symptom != "Select a symptom":
         st.write("**ACTION PLAN:** Don't let a small noise become a big bill. Contact Johan for a physical inspection.")
         st.markdown('</div>', unsafe_allow_html=True)
 
+   # --- Added WhatsApp Call to Action ---
+        st.write("---")
+        st.subheader("🚀 Take the Next Step")
+        
+        wa_message = f"Hi Johan, I used the Advanced Auto app for my {year} {brand} {model}. "
+        wa_message += f"The symptom is {symptom}. "
+        if selected_hits:
+            results_str = ", ".join([hit['target'] for hit in selected_hits])
+            wa_message += f"The app suggested: {results_str}. "
+        wa_message += "Can you help me with a physical inspection and a quote?"
+
+        phone_number = "27828447328" 
+        encoded_message = urllib.parse.quote(wa_message)
+        whatsapp_url = f"https://wa.me/{phone_number}?text={encoded_message}"
+
+        st.info("Ready for a professional fix? Send your 'Judgement' results directly to Johan.")
+        st.markdown(f'''
+            <a href="{whatsapp_url}" target="_blank" style="text-decoration: none;">
+                <div style="
+                    width: 100%;
+                    background-color: #25D366;
+                    color: white;
+                    padding: 18px;
+                    text-align: center;
+                    border-radius: 10px;
+                    font-size: 20px;
+                    font-weight: bold;
+                    box-shadow: 0px 4px 10px rgba(0,0,0,0.1);
+                    cursor: pointer;">
+                    💬 WhatsApp My Diagnosis to Johan
+                </div>
+            </a>
+            ''', unsafe_allow_html=True)
+
 # 7. Contact Footer
 st.write("---")
 st.markdown("### 📞 NEED A PROFESSIONAL HAND?")
